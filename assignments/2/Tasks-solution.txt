@@ -1,0 +1,227 @@
+## Tasks
+
+### Part A: User Creation and Management 
+
+1. **Create three new users** using `adduser` command:
+
+   - `alice` (interactive creation with full prompts)
+         ahmed@ahmed:~$ sudo adduser alice
+         [sudo] password for ahmed:
+         info: Adding user `alice' ...
+         info: Selecting UID/GID from range 1000 to 59999 ...
+         info: Adding new group `alice' (1001) ...
+         info: Adding new user `alice' (1001) with group `alice (1001)' ...
+         info: Creating home directory `/home/alice' ...
+         info: Copying files from `/etc/skel' ...
+         New password:
+         BAD PASSWORD: The password is shorter than 8 characters
+         Retype new password:
+         passwd: password updated successfully
+         Changing the user information for alice
+         Enter the new value, or press ENTER for the default
+               Full Name []:
+               Room Number []:
+               Work Phone []:
+               Home Phone []:
+               Other []:
+         Is the information correct? [Y/n]
+         info: Adding new user `alice' to supplemental / extra groups `users' ...
+         info: Adding user `alice' to group `users' ... 
+
+   - `bob` (with custom home directory `/opt/users/bob`)
+         ahmed@ahmed:~$ sudo useradd -m -d /opt/users/bob -s /bin/bash bob
+         [sudo] password for ahmed:
+         ahmed@ahmed:~$ tail -4 /etc/passwd
+         ahmed:x:1000:1000:ahmed:/home/ahmed:/bin/bash
+         sshd:x:122:65534::/run/sshd:/usr/sbin/nologin
+         alice:x:1001:1001:,,,:/home/alice:/bin/bash
+         bob:x:1002:1002::/opt/users/bob:/bin/bash
+
+   - `charlie` (system user for services)
+
+         ahmed@ahmed:~$ sudo useradd -r charlie
+         ahmed@ahmed:~$ tail -4 /etc/passwd
+         sshd:x:122:65534::/run/sshd:/usr/sbin/nologin
+         alice:x:1001:1001:,,,:/home/alice:/bin/bash
+         bob:x:1002:1002::/opt/users/bob:/bin/bash
+         charlie:x:997:984::/home/charlie:/bin/sh
+
+
+2. **Set passwords** for alice and bob:
+
+   - `bob` : 
+         ahmed@ahmed:~$ sudo passwd bob
+         New password:
+         BAD PASSWORD: The password is shorter than 8 characters
+         Retype new password:
+         passwd: password updated successfully
+
+   - `alice` : 
+         ahmed@ahmed:~$ sudo passwd -e alice
+         passwd: password changed.
+
+
+
+3. **View user information**:
+
+   - `alice` : 
+         ahmed@ahmed:~$ grep alice /etc/passwd
+         alice:x:1001:1001:,,,:/home/alice:/bin/bash
+   
+   - `bob` : 
+         ahmed@ahmed:~$ sudo chage -l bob
+         Last password change                                    : Oct 13, 2025
+         Password expires                                        : never
+         Password inactive                                       : never
+         Account expires                                         : never
+         Minimum number of days between password change          : 0
+         Maximum number of days between password change          : 99999
+         Number of days of warning before password expires       : 7
+
+
+
+### Part B: Group Management 
+
+4. **Create two groups**:
+
+   - `developers` :
+         ahmed@ahmed:~$ sudo groupadd developers
+         ahmed@ahmed:~$ tail -4 /etc/group
+         alice:x:1001:
+         bob:x:1002:
+         charlie:x:984:
+         developers:x:1003:
+
+   - `project-team` :
+         ahmed@ahmed:~$ sudo addgroup project-team
+         info: Selecting GID from range 1000 to 59999 ...
+         info: Adding group `project-team' (GID 1004) ...
+
+
+5. **Add users to groups**:
+
+   - >>  ahmed@ahmed:~$ sudo usermod -aG developers,project-team alice
+         ahmed@ahmed:~$ id alice
+         uid=1001(alice) gid=1001(alice) groups=1001(alice),1003(developers),1004(project-team)
+
+   - >>  ahmed@ahmed:~$ sudo usermod -aG developers bob
+         ahmed@ahmed:~$ id bob
+         uid=1002(bob) gid=1002(bob) groups=1002(bob),1003(developers)
+
+   - >>  ahmed@ahmed:~$ sudo usermod -g developers alice
+         ahmed@ahmed:~$ id alice
+         uid=1001(alice) gid=1003(developers) groups=1003(developers),1004(project-team)
+
+
+6. **Verify group memberships**:
+
+   - >>  ahmed@ahmed:~$ groups alice
+         alice : developers project-team
+
+   - >>  ahmed@ahmed:~$ id bob
+         uid=1002(bob) gid=1002(bob) groups=1002(bob),1003(developers)
+
+
+
+
+### Part C: File Permissions and Ownership (25 points)
+
+7. **Create test files and directories**:
+
+      -     ahmed@ahmed:/$ mkdir tmp/lab1_test
+      -     ahmed@ahmed:/$ cat > tmp/lab1_test/data.txt
+            best practicies
+            ahmed
+            ^C
+      -     ahmed@ahmed:/$ touch tmp/lab1_test/script.sh
+            ahmed@ahmed:/$ ls tmp/lab1_test/
+            data.txt  script.sh
+
+
+8. **Set permissions using symbolic notation**:
+
+      -     ahmed@ahmed:/$ chmod g-w tmp/lab1_test/data.txt
+      -     ahmed@ahmed:/$ chmod a+x tmp/lab1_test/script.sh
+      -     ahmed@ahmed:/$ chmod g-w tmp/lab1_test/script.sh
+            ahmed@ahmed:/$ ls -l tmp/lab1_test/
+            total 4
+            -rw-r--r-- 1 ahmed ahmed 22 Oct 14 13:07 data.txt
+            -rwxr-xr-x 1 ahmed ahmed  0 Oct 14 13:09 script.sh
+
+
+9. **Change ownership**:
+
+      -     ahmed@ahmed:/$ sudo chown alice:developers tmp/lab1_test/data.txt
+      -     ahmed@ahmed:/$ sudo chown -R bob:project-team tmp/lab1_test/
+
+
+
+
+### Part D: Verification and Testing 
+
+10. **Test permissions**:
+
+            alice@ahmed:~$ cat /tmp/lab1_test/data.txt
+            best practicies
+            ahmed
+            alice@ahmed:~$ cd /tmp/lab1_test/
+            alice@ahmed:/tmp/lab1_test$ ./script.sh
+            alice@ahmed:/tmp/lab1_test$
+
+
+11. **Display final state**:
+
+      -     alice@ahmed:~$ ls -l /tmp/lab1_test/
+            total 4
+            -rw-r--r-- 1 bob project-team 22 Oct 14 13:07 data.txt
+            -rwxr-xr-x 1 bob project-team  0 Oct 14 13:09 script.sh
+
+      -     alice@ahmed:~$ id alice
+            uid=1001(alice) gid=1003(developers) groups=1003(developers),1004(project-team)
+            alice@ahmed:~$ id bob
+            uid=1002(bob) gid=1002(bob) groups=1002(bob),1003(developers)
+            alice@ahmed:~$ id charlie
+            uid=997(charlie) gid=984(charlie) groups=984(charlie)
+
+
+
+
+
+
+## Tasks
+
+### Part A: Basic Sudo Configuration (25 points)
+
+1. **Set up sudo for web server management**:
+   
+
+
+![terminal screenshot](./screenshots/Capture.PNG)
+
+
+   
+### Part B: Group-Based Sudo Permissions 
+
+
+
+![terminal screenshot](./screenshots/Capture2.PNG)
+
+
+
+### Part C: User Account Management 
+
+
+
+![terminal screenshot](./screenshots/Capture3.PNG)
+
+
+
+### Part D: Complete System Administration Scenario 
+
+
+
+![terminal screenshot](./screenshots/Capture4.PNG)
+
+
+
+

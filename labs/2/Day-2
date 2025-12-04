@@ -1,0 +1,596 @@
+
+
+
+## 0. Create a User with adduser
+
+### Basic user creation (Interactive)
+```bash
+# Create user with interactive prompts
+sudo adduser john
+
+# This will automatically:
+# - Create home directory
+# - Set up default shell (/bin/bash)
+# - Prompt for password
+# - Ask for user details (name, phone, etc.)
+# - Create a group with same name as user
+```
+
+### Create user with specific options
+```bash
+# Create user with custom shell
+sudo useradd john --shell /bin/sh
+
+# Create user with custom home directory
+sudo useradd john --home /opt/users/john
+
+# Create user without creating home directory
+sudo useradd john --no-create-home
+
+# Create system user (for services)
+sudo useradd --system serviceuser
+
+# Create user with specific UID
+sudo useradd john --uid 1500
+
+# Create user with specific GID
+sudo useradd john --gid 1000
+```
+
+### Create user with disabled login options
+```bash
+# Create user with disabled login (cannot login)
+sudo useradd john --disabled-login
+
+# Create user without password (can login with SSH keys)
+sudo useradd john --disabled-password
+
+# Create user in specific group
+sudo useradd john --ingroup developers
+```
+
+## User Management Files
+
+These files are essential for managing users, groups, and permissions on a Linux system, and they play a key role in ensuring security and efficient system administration.
+
+![[6b0ab3395759977ed35163f12cb36df8_MD5.webp]]
+
+The following are different user management files in linux:
+
+###### User Information
+
+**`**/etc/passwd:**`** Stores basic details of all user accounts including:
+
+- Username
+- User ID (UID)
+- Primary Group ID (GID)
+- Home directory
+- Default shell
+- Full name of the user
+  [[6d023e6c430d83530b3f0bd75f6ad6b1_MD5.jpg|Open: Pasted image 20251010004602.png | 500 ]]
+  ![[6d023e6c430d83530b3f0bd75f6ad6b1_MD5.jpg | 700]]
+
+  **`**/etc/shadow: **`** Stores encrypted user passwords and password-related settings:
+
+  - Encrypted passwords
+  - Last password change date
+  - Password expiration and inactivity rules
+  - Account expiration settings
+  [[560a7fbbb07716a3762c6775e7e02356_MD5.jpg|Open: Pasted image 20251010153103.png]]
+  ![[560a7fbbb07716a3762c6775e7e02356_MD5.jpg | 700]]
+
+  ###### Group Management
+
+  **`**/etc/group**`**: Defines all groups in the system and user memberships:
+
+  - Group name
+  - Group ID (GID)
+  - List of  users in each group
+  [[8fa7b2a76ad6532e0f716c37d117ac64_MD5.jpg|Open: Pasted image 20251010152510.png]]
+  ![[8fa7b2a76ad6532e0f716c37d117ac64_MD5.jpg | ]]
+
+
+
+  **`**/etc/gshadow**`**: Secure counterpart to `/etc/group`, storing:
+
+  - Encrypted group passwords
+  - Group administrators
+  - Group members
+
+  ###### Privilege Control
+
+  **`**/etc/sudoers**`**: Manages sudo access for users and groups:
+
+  - Who can use the `sudo` command
+  - What commands they can run
+  - From which terminals/systems
+   [[8e784d6ef68608a5c6e8f4f2055224f9_MD5.jpg|Open: Pasted image 20251010004938.png | 500]]
+   ![[8e784d6ef68608a5c6e8f4f2055224f9_MD5.jpg]]
+
+   ![[7f45526c6de60f53e9192460efc69489_MD5.png]]
+
+
+
+   ## 1. File Permissions and Ownership
+
+   ### Understanding Permissions
+   Linux uses a permission system with three types of access:
+   - **Read (r)**: View file contents or list directory
+   - **Write (w)**: Modify file or add/remove files in directory
+   - **Execute (x)**: Run file as program or enter directory
+
+   ### Permission Groups
+   - **Owner (u)**: File owner
+   - **Group (g)**: Users in the file's group
+   - **Others (o)**: Everyone else
+
+   ### Viewing Permissions
+   ```bash
+   # Detailed file listing
+   ls -l filename.txt
+   # Output: -rw-r--r-- 1 user group 1024 Jan 15 10:30 filename.txt
+   #         ^^^^^^^^^ ^   ^    ^     ^   ^  ^  ^  ^  ^
+   #         |         |   |    |     |   |  |  |  |  |
+   #         |         |   |    |     |   |  |  |  |  +-- File name
+   #         |         |   |    |     |   |  |  |  +----- Time
+   #         |         |   |    |     |   |  |  +-------- Date
+   #         |         |   |    |     |   |  +----------- Size
+   #         |         |   |    |     |   +-------------- Group
+   #         |         |   |    |     +------------------ Owner
+   #         |         |   |    +------------------------ Links
+   #         |         |   +----------------------------- Group permissions
+   #         |         +---------------------------------- Owner permissions
+   #         +-------------------------------------------- File type & permissions
+   ```
+
+   ### Changing Permissions
+   ```bash
+   # Using chmod with symbolic notation
+   chmod u+x filename.txt        # Add execute for owner
+   chmod g-w filename.txt        # Remove write for group
+   chmod o+r filename.txt        # Add read for others
+   chmod a+x filename.txt        # Add execute for all (a = all)
+   sudo chmod -x devolopers/
+
+   # Using chmod with octal notation
+   chmod 755 filename.txt        # rwxr-xr-x
+   chmod 644 filename.txt        # rw-r--r--
+   chmod 600 filename.txt        # rw-------
+
+   •	7 (Owner): read (4) + write (2) + execute (1) = rwx (full access)
+   •	7 (Group): read (4) + write (2) + execute (1) = rwx (full access)
+   •	5 (Others): read (4) + execute (1) = r-x (read and execute only)
+   ```
+
+
+
+   ### Changing Ownership
+   ```bash
+   # Change owner
+   chown newowner filename.txt
+
+   # Change owner and group
+   chown newowner:newgroup filename.txt
+
+   # Change only group
+   chgrp newgroup filename.txt
+
+   # Recursive change
+   chown -R user:group directory/
+   ```
+
+
+
+   ## 2. Change User Password
+
+   ```bash
+   # Set password for user (will prompt for password)
+   sudo passwd john
+
+   # Change your own password
+   passwd
+
+   # Force password change at next login
+   sudo passwd -e john
+
+   # Set password expiry
+   sudo chage -M 90 john  # Password expires in 90 days
+
+   # Set minimum password age
+   sudo chage -m 7 john   # Must wait 7 days before changing
+
+   # Set account expiry date
+   sudo chage -E 2025-12-31 john
+   ```
+
+   ## 3. Create and Manage Groups
+
+   ### Create groups using adduser
+   ```bash
+   # Create a group
+   sudo addgroup developers
+
+   sudo adduser --group developers
+
+   # Create system group
+   sudo adduser --system --group systemservice
+   ```
+
+   ### Add user to groups
+   ```bash
+   # Add user to supplementary group (append)
+   usermod -aG groupname username
+   ```
+
+   ### View user groups
+   ```bash
+   # Show user's groups
+   groups john
+   id john
+
+   # Show all groups
+   getent group
+
+   # Show members of a group
+   getent group developers
+   ```
+
+   ## 4. Remove User from Group
+
+   ```bash
+   # Remove user from specific group
+   sudo deluser john developers
+
+   # Remove user from all supplementary groups
+   sudo usermod -G "" john
+   ```
+
+   ## 5. Delete Groups
+
+   ```bash
+   # Delete a group
+   sudo delgroup developers
+
+   # Alternative command
+   sudo groupdel developers
+
+   # Check if group exists before deleting
+   getent group developers && sudo delgroup developers
+   ```
+
+   ## 6. File and Directory Permissions
+
+   ### Change ownership
+   ```bash
+   # Change owner
+   sudo chown john /home/project
+
+   # Change owner and group
+   sudo chown john:developers /home/project
+
+   # Recursive change
+   sudo chown -R john:developers /home/project/
+   ```
+
+   ### Change permissions
+   ```bash
+   # Numeric permissions
+   sudo chmod 755 /home/project          # rwxr-xr-x
+   sudo chmod 644 /home/project/file.txt  # rw-r--r--
+
+   # Symbolic permissions
+   sudo chmod u+rwx,g+rx,o+rx /home/project
+   sudo chmod g+w /home/project
+   sudo chmod o-rwx /home/project
+
+   # Set setgid bit (files inherit group)
+   sudo chmod 2775 /home/shared_project
+   ```
+
+
+
+
+   ### SUID (Set User ID) - 4
+
+   **What it does**: File runs with **owner's permissions**, not yours.
+
+   **Example**:
+   ```bash
+   # The passwd command runs as root so you can change your password
+   ls -l /usr/bin/passwd
+   -rwsr-xr-x 1 root root 68208 passwd
+
+   # Set SUID
+   chmod 4755 file
+   chmod u+s file
+   ```
+
+   **Real use**: When you run `passwd`, it needs root access to modify `/etc/shadow`, even though you're a regular user[1][2].
+
+   ***
+
+   ### SGID (Set Group ID) - 2
+
+   **What it does**: 
+   - **Files**: Run with group's permissions
+   - **Directories**: New files inherit the directory's group
+
+   **Example**:
+   ```bash
+   # Directory with SGID - perfect for team folders
+   chmod 2775 /shared/project
+   chmod g+s /shared/project
+
+   # Result: drwxrwsr-x
+   # Now any file created inside gets the "project" group automatically
+   ```
+   [[665c97449517bb6dc562545ddc076846_MD5.jpg|Open: Pasted image 20251010012342.png]]
+   ![[665c97449517bb6dc562545ddc076846_MD5.jpg]]
+   **Real use**: Team collaboration - everyone's files belong to the same group[3][4].
+
+   ***
+
+   ### Sticky Bit - 1
+
+   **What it does**: In directories, only **file owners can delete their own files**.
+
+   **Example**:
+   ```bash
+   # /tmp directory uses sticky bit
+   ls -ld /tmp
+   drwxrwxrwt 15 root root 4096 /tmp
+
+   # Set sticky bit
+   chmod 1777 directory
+   chmod +t directory
+
+   sudo useradd user1
+   sudo useradd user2
+
+   sudo su - user2
+   cd /shared_lab
+   rm user1_file.txt    # This SUCCEEDS without sticky bit
+   ls -l
+   exit
+
+   sudo chmod +t /shared_lab
+
+   sudo su - user1
+   cd /shared_lab
+   touch protected_file.txt
+   echo "Protected content" > protected_file.txt
+   ls -l
+   exit
+
+   ```
+
+
+   | Permission | Number | Symbol        | Effect                  |
+   | ---------- | ------ | ------------- | ----------------------- |
+   | SUID       | 4      | `s` in user   | Run as file owner       |
+   | SGID       | 2      | `s` in group  | Inherit group ownership |
+   | Sticky     | 1      | `t` in others | Only owner can delete   |
+
+
+   [[f367db6236dd7ab107b26b106b44b5e0_MD5.jpg|Open: Pasted image 20251010010719.png]]
+   ![[f367db6236dd7ab107b26b106b44b5e0_MD5.jpg]]
+   ## 7. Grant Sudo Permissions for Specific Commands
+
+   ### Edit sudoers safely
+   ```bash
+   # Edit main sudoers file
+   sudo visudo
+
+   anahur ALL=(ALL) NOPASSWD:ALL
+   # Create specific sudoers file
+   sudo visudo -f /etc/sudoers.d/john
+   ```
+
+   ### Examples of sudo configurations
+
+   #### Allow specific command without password
+
+   ```bash
+   sudo visudo -f /etc/sudoers.d/custom
+
+   Cmnd_Alias COMMANDS = /usr/sbin/adduser,
+
+
+
+   user2 ALL=(ALL) NOPASSWD: COMMANDS
+   ```
+
+
+   ### Test sudo permissions
+   ```bash
+   # List user's sudo permissions
+   sudo -l
+
+   # Test specific command
+   sudo /bin/systemctl status apache2
+   ```
+
+   ## 8. Lock and Unlock Users
+
+   ### Lock user account
+   ```bash
+   # Lock user (prevent login)
+   sudo usermod -L john
+
+   # Lock with expiry date
+   sudo usermod -e 2025-01-01 john
+
+   # Disable account (alternative method)
+   sudo passwd -l john
+   ```
+
+   ### Unlock user account
+   ```bash
+   # Unlock user
+   sudo usermod -U john
+
+   # Remove expiry date
+   sudo usermod -e "" john
+
+   # Enable account
+   sudo passwd -u john
+   ```
+
+   ### Check account status
+   ```bash
+   # Check if account is locked
+   sudo passwd -S john
+
+   # View account details
+   sudo chage -l john
+
+   # Check login status
+   lastlog -u john
+   ```
+
+   ## 9. Delete Users
+
+   ### Delete user using deluser (recommended with adduser)
+   ```bash
+   # Delete user (keep home directory)
+   sudo deluser john
+
+   # Delete user and home directory
+   sudo deluser --remove-home john
+
+   # Delete user, home, and all files
+   sudo deluser --remove-all-files john
+
+   # Force delete (even if logged in)
+   sudo deluser --force john
+   ```
+
+   ### Alternative deletion methods
+   ```bash
+   # Using userdel command
+   sudo userdel john
+   sudo userdel -r john  # with home directory
+   ```
+
+   ## 10. Switch Users
+
+   ### Switch to another user
+   ```bash
+   # Switch with login shell
+   su - john
+
+   # Switch without login shell
+   su john
+
+   # Switch using sudo (if permitted)
+   sudo su - john
+
+   # Execute single command as another user
+   sudo -u john whoami
+   ```
+
+   ## 11. Complete Example
+
+   ```bash
+   # 1. Create user with adduser (interactive)
+   sudo adduser webdev
+
+   # 2. Create groups
+   sudo addgroup web-developers
+   sudo addgroup docker-users
+
+   # 3. Add user to groups
+   sudo adduser webdev web-developers
+   sudo adduser webdev docker-users
+   sudo adduser webdev sudo
+
+   # 4. Create project directory
+   sudo mkdir -p /var/www/projects
+   sudo chown root:web-developers /var/www/projects
+   sudo chmod 2775 /var/www/projects ## we add 2
+
+   # 5. Set up sudo permissions
+   sudo visudo -f /etc/sudoers.d/webdev
+   ```
+
+   Content for `/etc/sudoers.d/webdev`:
+   ```bash
+   # Web development commands
+   Cmnd_Alias WEB_CMDS = /bin/systemctl start nginx, /bin/systemctl stop nginx, /bin/systemctl restart nginx, /bin/systemctl reload nginx
+   Cmnd_Alias DOCKER_CMDS = /usr/bin/docker, /usr/local/bin/docker-compose
+
+   webdev ALL=(root) NOPASSWD: WEB_CMDS, DOCKER_CMDS
+   ```
+
+   ### Verify setup
+   ```bash
+   # Test user
+   su - webdev
+   groups  # Should show: webdev web-developers docker-users sudo
+   sudo -l  # Should show allowed commands
+   sudo systemctl status nginx  # Should work without password
+   ```
+
+
+   ```bash 
+   PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+   ```
+
+
+
+   ###  Task
+
+   1. **Create three new users** using `adduser` command:
+      - `alice` (interactive creation with full prompts)
+         - `bob` (with custom home directory `/opt/users/bob`)
+	    - `charlie` (system user for services)
+
+	    2. **Set passwords** for alice and bob:
+	       - Use `passwd` command
+	          - Force alice to change password at next login
+
+		  3. **View user information**:
+		     - Display alice's entry from `/etc/passwd`
+		        - Show bob's password aging information using `chage -l bob`
+
+			### Part B: Group Management 
+
+			4. **Create two groups**:
+			   - `developers` (regular group)
+			      - `project-team` (using addgroup command)
+
+			      5. **Add users to groups**:
+			         - Add alice to both `developers` and `project-team`
+				    - Add bob to `developers` only
+				       - Make `developers` alice's primary group
+
+				       6. **Verify group memberships**:
+				          - Use `groups` command to show alice's groups
+					     - Use `id` command to display bob's UID and GID information
+
+					     ### Part C: File Permissions and Ownership (25 points)
+
+					     7. **Create test files and directories**:
+					        - Create directory `/tmp/lab1_test`
+						   - Create file `/tmp/lab1_test/data.txt` with some content
+						      - Create file `/tmp/lab1_test/script.sh`
+
+						      8. **Set permissions using symbolic notation**:
+						         - Set `data.txt` permissions to `rw-r--r--` (owner: read/write, group: read, others: read)
+							    - Set `script.sh` permissions to `rwxr-xr-x` (owner: full access, group/others: read/execute)
+
+							    9. **Change ownership**:
+							       - Change owner of `data.txt` to alice and group to developers
+							          - Change owner of entire `/tmp/lab1_test` directory to bob and group to project-team (recursive)
+
+								  ### Part D: Verification and Testing 
+
+								  10. **Test permissions**:
+								      - Switch to alice user (`su - alice`)
+								          - Try to read `data.txt`
+									      - Try to execute `script.sh`
+									          - Document what works and what doesn't
+
+										  11. **Display final state**:
+										      - Use `ls -la /tmp/lab1_test` to show all permissions and ownership
+										          - Show group memberships for all created users
