@@ -1,0 +1,4 @@
+# tasks file for fetch
+
+- name: fetch website files
+  script: grip.sh

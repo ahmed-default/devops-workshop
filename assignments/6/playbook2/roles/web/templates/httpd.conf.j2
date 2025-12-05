@@ -1,0 +1,14 @@
+<VirtualHost *:80>
+    ServerName {{ ansible_host }}
+
+    DocumentRoot "{{ root_path }}"
+
+    <Directory "{{ root_path }}">
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+
+    ErrorLog "/var/log/httpd/error.log"
+    CustomLog "/var/log/httpd/access.log" combined
+</VirtualHost>

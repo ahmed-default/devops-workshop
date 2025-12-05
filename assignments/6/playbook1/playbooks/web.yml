@@ -1,0 +1,8 @@
+
+- name: install nginx or httpd
+  hosts: webservers
+
+
+  roles:
+    - web
+

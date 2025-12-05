@@ -1,0 +1,10 @@
+---
+# tasks file for db
+
+
+- name: install mariadb server
+  package:
+    name: "{{ db_pkg }}"
+    state: present
+    update_cache: True
+  notify: start and enable service

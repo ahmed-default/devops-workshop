@@ -1,0 +1,45 @@
+---
+# tasks file for web
+
+- name: install nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: True
+  when: ansible_os_family == "Debian"
+  notify: start and enable nginx
+
+
+- name: install httpd
+  yum:
+    name: httpd
+    state: present
+    update_cache: True
+  when: ansible_os_family == "RedHat"
+  notify: start and enable httpd
+
+
+
+
+- name: clean old site
+  shell: rm -rf /var/www/html/*
+
+
+
+
+- name: deploy website on debian
+  copy:
+    src: files/
+    dest: /var/www/html/
+    owner: www-data
+    group: www-data
+  when: ansible_os_family == "Debian"
+
+
+- name: deploy website on redhat
+  copy:
+    src: files/
+    dest: /var/www/html/
+    owner: apache
+    group: apache
+  when: ansible_os_family == "RedHat"

@@ -1,0 +1,7 @@
+
+- name: install mariadb
+  hosts: dbservers
+
+
+  roles:
+    - db

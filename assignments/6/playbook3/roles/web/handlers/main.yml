@@ -1,0 +1,33 @@
+---
+# handlers file for web
+
+- name: start and enable nginx
+  service:
+    name: nginx
+    state: started
+    enabled: True
+  when: ansible_os_family == "Debian"
+
+
+- name: start and enable httpd
+  service:
+    name: httpd
+    state: started
+    enabled: True
+  when: ansible_os_family == "RedHat"
+
+
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+  when: ansible_os_family == "Debian"
+
+
+
+- name: restart httpd
+  service:
+    name: httpd
+    state: restarted
+  when: ansible_os_family == "RedHat"

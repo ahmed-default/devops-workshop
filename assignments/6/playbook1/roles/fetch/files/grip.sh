@@ -4,10 +4,6 @@
 set -e
 
 
-sudo apt update -y
-sudo apt install curl wget unzip -y
-
-
 #============================== VARIABLES ================================#
 
 tmp_dir="/tmp/sitefiles/"
@@ -41,15 +37,3 @@ file=$(ls)
 sudo rm -rf "$dest"/*
 
 sudo cp -r "$file"/* "$dest"
-
-if [ $? -eq 0 ]; then
-	echo "copying done."
-else
-	echo "copying failed"
-	exit 1
-fi
-
-
-exit 0
-
-#=========================================================================#
