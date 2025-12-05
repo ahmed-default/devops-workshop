@@ -1,0 +1,46 @@
+---
+# tasks file for web
+
+- name: install web server
+  package:
+    name: "{{ web_pkg }}"
+    state: present
+    update_cache: True
+  notify: start and enable service
+
+
+
+- name: deploy conf file
+  template:
+    src: "{{ src }}"
+    dest: "{{ conf_dest }}"
+  notify: restart service
+
+
+- name: symlink nginx
+  file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+  when: ansible_os_family == "Debian"
+
+
+    #- name: clean old site
+    #  shell: rm -rf /var/www/html/*
+
+- name: clean old site
+  file:
+    path: "{{ root_path }}"
+    state: directory
+    owner: "{{ owner }}"
+    group: "{{ owner }}"
+
+
+
+- name: deploy website
+  copy:
+    src: "{{ website }}"
+    dest: "{{ root_path }}"
+    owner: "{{ owner }}"
+    group: "{{ owner }}"
+

@@ -1,0 +1,21 @@
+---
+# tasks file for db
+
+- name: install mariadb on Debian
+  apt:
+    name: mariadb-server
+    state: present
+    update_cache: True
+  when: ansible_os_family == "Debian"
+  notify: start and enable mariadb
+
+
+- name: install mariadb on RedHat
+  yum:
+    name: mariadb105-server
+    state: present
+    update_cache: True
+  when: ansible_os_family == "RedHat"
+  notify: start and enable mariadb
+
+

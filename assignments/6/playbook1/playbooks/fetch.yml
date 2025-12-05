@@ -1,0 +1,5 @@
+- name: fetch website
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - fetch

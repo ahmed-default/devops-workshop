@@ -1,0 +1,9 @@
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for dbservers
+
+
+- name: restart mariadb
+  service:
+    name: mariadb
+    state: restarted

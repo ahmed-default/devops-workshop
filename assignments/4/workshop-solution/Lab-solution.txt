@@ -1,0 +1,135 @@
+Exercise 
+1 - Explore filesystem and /var/log
+
+    1 - /var ---> بيتخزن فيه ملفات اللوج (logs)
+      - /etc ---> بيتخزن فيه ملفات الكونفج (configuration)
+      - /usr ---> بيتحزن فيه كل السوفت وير اللي متسطب علي المكنه والمكتبات والبيناريز (binaries,libraries,installed software)
+      - /opt ---> برامج اضافية بتنزل من بره النظام مش بتنزل مع النظام من البداية 
+      - /srv ---> ملفات الخدمات اللي السيرفر بيقدمها للناس (services)
+      - /home ---> بيبقي فيه الهوم بتاع كل يوزر (usershome)
+
+
+    2 - auth.log ---> logging, ssh and sudo commands
+        kern.log ---> kernal messages
+        apt/dpkg.log ---> packages manager
+        syslog ---> systemd and services
+
+
+
+    3 - tail -10 /var/log/myapp/myapp.log
+        Oct 20 16:43:53 myapp[5104]: WARN - user=bob action=login code=1173
+        Oct 20 16:43:53 myapp[5104]: WARN - user=alice action=read code=1205
+        Oct 20 16:43:53 myapp[5104]: ERROR - user=carol action=write code=1345
+        Oct 20 16:43:53 myapp[5104]: WARN - user=bob action=login code=1422
+        Oct 20 16:43:53 myapp[5104]: INFO - user=alice action=logout code=1609
+        Oct 20 16:43:53 myapp[5104]: WARN - user=dave action=login code=1758
+        Oct 20 16:43:53 myapp[5104]: INFO - user=alice action=logout code=1865
+        Oct 20 16:43:53 myapp[5104]: INFO - user=alice action=logout code=1142
+        Oct 20 16:43:53 myapp[5104]: INFO - user=carol action=logout code=1264
+        Oct 20 16:43:53 myapp[5104]: WARN - user=bob action=login code=1224
+
+
+    4 - grep -i error /var/log/myapp/myapp.log* | wc -l
+        648
+
+
+    5 - grep -o "action=[a-z]*" /var/log/myapp/myapp.log* | cut -d= -f2 | sort | uniq -c | sort -nr | head
+        568 read
+        524 logout
+        524 login
+        384 write
+
+
+
+
+
+2 - Users, groups, sudo, and permissions
+
+    1 - tail -3 /etc/passwd
+        student1:x:1006:1007::/home/student1:/bin/bash
+        student2:x:1007:1008::/home/student2:/bin/bash
+        student3:x:1008:1009::/home/student3:/bin/bash
+
+        tail -2 /etc/group
+        devops:x:1010:student1
+        auditors:x:1011:student2
+        #student3 doesn't have group
+
+        ahmed@ahmed:/var/log/myapp$ id student1
+          uid=1006(student1) gid=1007(student1) groups=1007(student1),1010(devops)
+        ahmed@ahmed:/var/log/myapp$ id student2
+          uid=1007(student2) gid=1008(student2) groups=1008(student2),1011(auditors)
+        ahmed@ahmed:/var/log/myapp$ id student3
+          uid=1008(student3) gid=1009(student3) groups=1009(student3)
+
+
+    2 - ahmed@ahmed:/var/log/myapp$ sudo useradd -m -s /bin/bash labadmin
+          [sudo] password for ahmed:
+        ahmed@ahmed:/var/log/myapp$ sudo passwd labadmin
+          New password:
+          BAD PASSWORD: The password is shorter than 8 characters
+          Retype new password:
+          passwd: password updated successfully
+        ahmed@ahmed:/var/log/myapp$ sudo usermod -aG sudo labadmin
+
+
+    3 - student1@ahmed:~$ touch /srv/shared/test1
+        student1@ahmed:~$ ls -l /srv/shared/
+          total 0
+          -rw-rw-r-- 1 student1 devops 0 Oct 20 18:20 test1
+        student1@ahmed:~$ su - student3
+          Password:
+        student3@ahmed:~$ touch /srv/shared/test2
+          touch: cannot touch '/srv/shared/test2': Permission denied
+
+
+    4 - 775 يعني :
+        owner : يقرا ويكتب وينفذ , read,write,execute
+        group : يقرا ويكتب وينفذ , read,write,execute
+        other : يقرا وينفذ بس , read,execute only
+
+
+    5 - student2@ahmed:~$ /usr/local/bin/lab-whoami
+        UID.real=1007 USER=student2 EUID=1007
+      - مفيش حاجة حصلت عشان لينكس مش بيسمح بالاستكي علي سكربتات باش عشان الامان
+      - no sticky bit
+
+
+
+
+
+3 - File text manipulation (grep, awk, sed, head, tail)
+
+    1 - grep -i "Failed password" /var/log/auth.log.lab
+        Oct 10 10:12:01 vm sshd[1242]: Failed password for invalid user guest from 192.168.5.12 port 3456 ssh2
+
+
+    2 - ahmed@ahmed:~$ awk '{print $7, $8}' /var/log/myapp/myapp.log | sort | uniq -c | sort -nr
+                       42 user=carol action=read
+                       39 user=dave action=login
+                       37 user=bob action=logout
+                       36 user=bob action=read
+                       35 user=alice action=read
+                       34 user=alice action=logout
+                       33 user=carol action=logout
+                       32 user=bob action=login
+                       31 user=alice action=login
+                       29 user=dave action=read
+                       29 user=carol action=login
+                       28 user=bob action=write
+                       28 user=alice action=write
+                       27 user=dave action=logout
+                       25 user=carol action=write
+                       15 user=dave action=write
+
+
+    3 - sed 's/code=[0-9]*/code=XXXX/g' /var/log/auth.log.lab
+      - مفيش حاجة اصلا بالاسم ده في الملف ده عشان يجيبها او يعدلها
+
+
+    4 - grep "max_connections" /etc/myapp.conf
+        max_connections=50
+
+
+    5 - tail -f /var/log/myapp/myapp.log
+

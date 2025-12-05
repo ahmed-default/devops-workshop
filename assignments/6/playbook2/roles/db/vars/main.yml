@@ -1,0 +1,5 @@
+---
+# vars file for db
+
+db_pkg: "{{ 'mariadb-server' if ansible_os_family == 'Debian' else 'maria105-server' }}"
+

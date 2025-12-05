@@ -1,0 +1,23 @@
+# Lab : Deploy a Website Using Nginx with Ansible Roles
+
+
+
+---
+
+
+
+
+## Your Task
+
+Create an Ansible role that performs the following:
+
+1. Installs Nginx web server on target servers
+2. Configures Nginx with a custom website
+3. Deploys website content (HTML pages)
+4. Manages Nginx service (start, enable, reload)
+5. Publishes the role to Ansible Galaxy
+
+
+
+
+---

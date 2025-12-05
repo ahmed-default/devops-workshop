@@ -1,0 +1,15 @@
+---
+# handlers file for web
+
+- name: start and enable service
+  service:
+    name: "{{ web_pkg }}"
+    state: started
+    enabled: True
+
+
+
+- name: restart service
+  service:
+    name: "{{ web_pkg }}"
+    state: restarted

@@ -1,0 +1,91 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for webservers
+
+
+
+# ============================
+# Install web server
+# ============================
+
+
+
+- name: install nginx server
+  apt:
+    name: nginx
+    state: present
+    update_cache: True
+  when: ansible_os_family == "Debian"
+
+
+- name: install httpd server
+  yum:
+    name: httpd
+    state: present
+    update_cache: True
+  when: ansible_os_family == "RedHat"
+
+
+
+
+# ============================
+# Start & Enable service
+# ============================
+
+
+
+- name: start and enable nginx
+  service:
+    name: nginx
+    state: started
+    enabled: true
+  when: ansible_os_family == "Debian"
+
+
+- name: start and enable httpd
+  service:
+    name: httpd
+    state: started
+    enabled: true
+  when: ansible_os_family == "RedHat"
+
+
+
+# ============================
+# Clean old website
+# ============================
+
+
+
+
+- name: clean old site
+  shell: rm -rf /var/www/html/*
+
+
+
+
+# ============================
+# Deploy new website
+# ============================
+
+
+
+
+- name: deploy website on Debian
+  copy:
+    src: files/
+    dest: /var/www/html/
+    owner: www-data
+    group: www-data
+  when: ansible_os_family == "Debian"
+
+
+- name: deploy website on RedHat
+  copy:
+    src: files/
+    dest: /var/www/html/
+    owner: apache
+    group: apache
+  when: ansible_os_family == "RedHat"
+
+

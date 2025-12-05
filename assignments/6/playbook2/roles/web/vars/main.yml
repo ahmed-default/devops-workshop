@@ -1,0 +1,14 @@
+---
+# vars file for web
+
+web_pkg: "{{ 'nginx' if ansible_os_family == 'Debian' else 'httpd' }}"
+
+website: files/
+
+root_path: /var/www/html/
+
+owner: "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
+
+conf_dest: "{{ '/etc/nginx/sites-available/default' if ansible_os_family == 'Debian' else '/etc/httpd/conf.d/httpd.conf' }}"
+
+src: "{{ 'nginx.conf.j2' if ansible_os_family == 'Debian' else 'httpd.conf.j2' }}"

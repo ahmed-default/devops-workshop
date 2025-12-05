@@ -1,0 +1,51 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for dbservers
+
+
+
+# ============================
+# install mariadb
+# ============================
+
+
+
+- name: install mariadb server on Debian
+  apt:
+    name: mariadb-server
+    state: present
+    update_cache: True
+  when: ansible_os_family == "Debian"
+
+
+- name: install mariadb server on RedHat
+  yum:
+    name: mariadb105-server
+    state: present
+    update_cache: True
+  when: ansible_os_family == "RedHat"
+
+
+
+
+# ============================
+# start and enable mariadb
+# ============================
+
+
+
+- name: start and enable mariadb on Debian
+  service:
+    name: mariadb
+    state: started
+    enabled: True
+  when: ansible_os_family == "Debian"
+
+
+
+- name: start and enable mariadb on RedHat
+  service:
+    name: mariadb
+    state: started
+    enabled: True
+  when: ansible_os_family == "RedHat"
